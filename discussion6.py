@@ -21,14 +21,14 @@ def load_csv(f):
     result = {}
 
     with open(full_path, 'r', newline='') as file:
-        reader = csv.DictReader(file)
-
-        year_field = reader.fieldnames[0]
+        reader = csv.reader(file)
+        header = next(reader)
+        years = header[1:]
+        result = {year: {} for year in years}
         for row in reader:
-            year = row[year_field]
-            
-            month_data = {k: v for k, v in row.items() if k != year_field}
-            result[year] = month_data
+            month = row[0]
+            for i, year in enumerate(years, start=1):
+                result[year][month] = row[i]
     return result
 
 def get_annual_max(d):
@@ -47,14 +47,12 @@ def get_annual_max(d):
     for year, months in d.items():
         max_month = None
         max_val = None
-        
         for month, val in months.items():
             num = int(val)
             if max_val is None or num > max_val:
                 max_val = num
                 max_month = month
         result.append((year, max_month, max_val))
-    
     result.sort(key=lambda tup: int(tup[0]))
     return result
 
@@ -75,17 +73,11 @@ def get_month_avg(d):
         total = 0
         count = 0
         for month, val in months.items():
-            try:
-                num = int(val)
-            except ValueError:
-                continue
+            num = int(val)
             total += num
             count += 1
-            if count > 0:
-                avg = total / count
-                result[year] = round(avg)
-            else:
-                result[year] = 0
+        avg = total / count if count else 0
+        result[year] = round(avg)
     return result
 
 class dis7_test(unittest.TestCase):
