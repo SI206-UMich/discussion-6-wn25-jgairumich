@@ -81,7 +81,11 @@ def get_month_avg(d):
                 continue
             total += num
             count += 1
-        
+            if count > 0:
+                avg = total / count
+                result[year] = round(avg)
+            else:
+                result[year] = 0
     return result
 
 class dis7_test(unittest.TestCase):
